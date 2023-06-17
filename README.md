@@ -1,9 +1,48 @@
-# MultiSig-Wallet
-A contract wallet for multi signature.
+# Marriage-Chain
+Get married on blockchain is so easy!
+Provide stand-alone marriage services from witness, certificate, joint account and also divorce.
 
 ## Description
 
+### Witness contract
 Provide a brief overview of the project, including its purpose, goals, and any relevant background information.
+
+- methods
+    - register(address with, string name) payable
+    - getMarried(address who) return bool
+    - getFiance(address who) return address
+    - getSpouse(address who) returns address
+    - divorce() payable
+- process of getting married
+    - user1 register
+    - user2 register
+    - contract check both register
+    - new MarriageCertificate NFT
+    - new JointAccount
+- process of getting divorced
+    - user1 divorce
+    - user2 divorce
+    - burn marriage certificate NFT
+    - split joint account
+
+### Marriage certificate NFT
+
+- Content
+    - names
+    - addresses
+    - blocktime
+
+### Joint account (MultiSig wallet)
+
+- methods
+    - withdraw
+    - split
+
+- Reference
+    - https://zhuanlan.zhihu.com/p/47474274?utm_id=0
+    - https://etherscan.io/tx/0xc206bb9f30050a2abb95f7e65c6381a9202f5776f0ec633913af1fc0bd0829fe
+    - https://etherscan.io/tx/0xe57243c88fb10b9ff9eeab7e51a197830092975339c07c7bcaf685d501c57237
+    - https://medium.com/coinmonks/get-married-on-the-blockchain-25091f12399b
 
 ## Framework
 
