@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import "../lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import "../lib/openzeppelin-contracts/contracts/utils/Base64.sol";
+import "../src/JointAccount.sol";
 
 contract MarriageChain is ERC721 {
 
@@ -13,6 +14,7 @@ contract MarriageChain is ERC721 {
     struct MarriageStatus {
         bool isMarried;
         address spouse;
+        address jointAccount;
     }
 
     event NewCouple(address spouse1, address spouse2, string name1, string name2);
@@ -32,14 +34,23 @@ contract MarriageChain is ERC721 {
         require(!myStatus.isMarried && !spouseStatus.isMarried, "Bigamy is not allowed");
         myStatus.spouse = spouse;
         updateName(name);
-        if (spouseStatus.spouse == msg.sender) {
+        bool registerSuccess = spouseStatus.spouse == msg.sender;
+        if (registerSuccess) {
             myStatus.isMarried = true;
             spouseStatus.isMarried = true;
+
+            address[2] memory couples = [msg.sender, spouse];
+            JointAccount account = new JointAccount(couples);
+            myStatus.jointAccount = address(account);
+            spouseStatus.jointAccount = address(account);
+
             marriageStatus[spouse] = spouseStatus;
+        }
+        marriageStatus[msg.sender] = myStatus;
+        if (registerSuccess) {
             mintCertificate(spouse);
             emit NewCouple(msg.sender, spouse, name, names[spouse]);
         }
-        marriageStatus[msg.sender] = myStatus;
     }
 
     function updateName(string calldata name) public {
@@ -63,20 +74,32 @@ contract MarriageChain is ERC721 {
 
     function spouseInfo(address spouse) private view returns (string memory) {
         return string(abi.encodePacked(
-            '<text x="20" y="300">',
+            unicode'<text x="20" y="250" style="font-size:30px;">💍</text>',
+            '<text x="60" y="250">',
             names[spouse],
             '</text>',
-            '<text x="20" y="330" style="font-size:14px;">',
+            '<text x="20" y="280" style="font-size:14px;">',
             addressToString(spouse),
             '</text>'
             )
         );
     }
 
-    function _buildTokenURI(uint256 id) internal view returns (string memory) {
-        address spouse = marriageStatus[address(uint160(id))].spouse;
+    function accountInfo(address account) private pure returns (string memory) {
+        return string(abi.encodePacked(
+            unicode'<text x="20" y="330" style="font-size:30px;">💰</text>',
+            '<text x="60" y="330">Joint account</text>',
+            '<text x="20" y="360" style="font-size:14px;">',
+            addressToString(account),
+            '</text>'
+            )
+        );
+    }
 
-        // TODO: Add share account address
+    function _buildTokenURI(uint256 id) internal view returns (string memory) {
+        MarriageStatus memory status = marriageStatus[address(uint160(id))];
+        address spouse = status.spouse;
+
         bytes memory image = abi.encodePacked(
             "data:image/svg+xml;base64,",
             Base64.encode(
@@ -88,14 +111,15 @@ contract MarriageChain is ERC721 {
                         '<rect width="400" height="400" fill="#ffffff" />',
                         '<text class="h1" x="30" y="70">Certificate of</text>',
                         '<text class="h1" x="95" y="120" >Marriage</text>',
-                        unicode'<text x="150" y="275" style="font-size:60px;">💍</text>',
-                        '<text x="20" y="180">',
+                        unicode'<text x="20" y="170" style="font-size:30px;">💍</text>',
+                        '<text x="60" y="170">',
                         names[address(uint160(id))],
                         '</text>',
-                        '<text x="20" y="210" style="font-size:14px;">',
+                        '<text x="20" y="200" style="font-size:14px;">',
                         addressToString(address(uint160(id))),
                         '</text>',
                         spouseInfo(spouse),
+                        accountInfo(status.jointAccount),
                         "</svg>"
                     )
                 )
@@ -110,11 +134,11 @@ contract MarriageChain is ERC721 {
                             abi.encodePacked(
                                 '{"name":"Certificate of Marriage", "image":"',
                                 image,
-                                unicode'", "description": "This NFT marks the certificate of marrage for',
+                                unicode'", "description": "This NFT marks the certificate of marrage for ',
                                 names[address(uint160(id))],
                                 '(',
                                 addressToString(address(uint160(id))),
-                                ')&',
+                                ') & ',
                                 names[spouse],
                                 '(',
                                 addressToString(spouse),
