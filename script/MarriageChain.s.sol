@@ -2,13 +2,15 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol";
-import { MarriageChain } from "../src/MarriageChain.sol";
+import "../src/MarriageChainDelegator.sol";
+import "../src/MarriageChainDelegate.sol";
 
 contract MarriageChainScript is Script {
     
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
-        MarriageChain marriageChain = new MarriageChain();
+        MarriageChainDelegate marriageChain = new MarriageChainDelegate();
+        MarriageChainDelegator marriageChainDelegator = new MarriageChainDelegator(address(marriageChain));
     }
 }

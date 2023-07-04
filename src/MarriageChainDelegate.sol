@@ -4,18 +4,10 @@ pragma solidity ^0.8.13;
 import "../lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import "../lib/openzeppelin-contracts/contracts/utils/Base64.sol";
-import "../src/JointAccount.sol";
+import "./JointAccount.sol";
+import "./MarriageChainStorage.sol";
 
-contract MarriageChain is ERC721 {
-
-    mapping(address => MarriageStatus) public marriageStatus;
-    mapping(address => string) public names;
-
-    struct MarriageStatus {
-        bool isMarried;
-        address spouse;
-        address jointAccount;
-    }
+contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
 
     event NewCouple(address spouse1, address spouse2, string name1, string name2);
     event Divorce(address spouse1, address spouse2, string name1, string name2);
