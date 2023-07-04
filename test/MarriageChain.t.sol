@@ -50,4 +50,38 @@ contract MarriageChainTest is Test {
         vm.expectRevert(bytes("Bigamy is not allowed"));
         marriageChain.register(Joseph, 'Mary');
     }
+
+    function testRequiredMarriedBeforeDivorce() public {
+        vm.startPrank(George, George);
+        marriageChain.register(Mary, 'George');
+        vm.expectRevert(bytes("You are not married"));
+        marriageChain.divorce();
+    }
+
+    function testDivorceResetStatus() public {
+        vm.startPrank(George, George);
+        marriageChain.register(Mary, 'George');
+        vm.stopPrank();
+        vm.startPrank(Mary, Mary);
+        marriageChain.register(George, 'Mary');
+        marriageChain.divorce();
+        (bool isMarried, ,) = marriageChain.marriageStatus(Mary);
+        assertEq(isMarried, false);
+    }
+
+    function testDivorceSplitAccount() public {
+        vm.startPrank(George, George);
+        marriageChain.register(Mary, 'George');
+        vm.stopPrank();
+        vm.startPrank(Mary, Mary);
+        marriageChain.register(George, 'Mary');
+        (, ,address account) = marriageChain.marriageStatus(Mary);
+        (bool transfer, ) = account.call { value: 10 ether }("");
+        assertEq(transfer, true);
+        assertEq(account.balance, 10 ether);
+        uint256 balanceBefore = Mary.balance;
+        marriageChain.divorce();
+        uint256 balanceAfter = Mary.balance;
+        assertEq(balanceAfter - balanceBefore, 5 ether);
+    }
 }

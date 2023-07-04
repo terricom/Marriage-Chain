@@ -18,6 +18,7 @@ contract MarriageChain is ERC721 {
     }
 
     event NewCouple(address spouse1, address spouse2, string name1, string name2);
+    event Divorce(address spouse1, address spouse2, string name1, string name2);
 
     constructor() ERC721("Marriage Certificate", "MC") {}
 
@@ -51,6 +52,15 @@ contract MarriageChain is ERC721 {
             mintCertificate(spouse);
             emit NewCouple(msg.sender, spouse, name, names[spouse]);
         }
+    }
+
+    function divorce() public {
+        MarriageStatus memory myStatus = marriageStatus[msg.sender];
+        require(myStatus.isMarried, "You are not married");
+        JointAccount(payable(myStatus.jointAccount)).splitAccount();
+        marriageStatus[msg.sender] = MarriageStatus(false, address(0), address(0));
+        marriageStatus[myStatus.spouse] = MarriageStatus(false, address(0), address(0));
+        emit Divorce(msg.sender, myStatus.spouse, names[msg.sender], names[myStatus.spouse]);
     }
 
     function updateName(string calldata name) public {

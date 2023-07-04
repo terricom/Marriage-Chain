@@ -11,6 +11,7 @@ contract JointAccount {
     uint256 public threshold;
     uint256 public nonce;
     uint256 private couplesCount = 2;
+    address private marriageChain;
 
     receive() external payable {}
 
@@ -18,6 +19,7 @@ contract JointAccount {
         address[2] memory _owners
     ) {
         _setupOwners(_owners);
+        marriageChain = msg.sender;
     }
 
     function _setupOwners(address[2] memory _owners) internal {
@@ -107,5 +109,17 @@ contract JointAccount {
                 )
             );
         return safeTxHash;
+    }
+
+    function splitAccount() public {
+        require(msg.sender == marriageChain, "Only marriage chain can split account");
+        address[] memory owners = couples;
+        uint amount = address(this).balance / 2;
+        address spouse1 = owners[0];
+        address spouse2 = owners[1];
+        (bool success1, ) = spouse1.call{ value: amount }("");
+        (bool success2, ) = spouse2.call{ value: amount }("");
+        require(success1 && success2);
+        threshold = 0;
     }
 }
