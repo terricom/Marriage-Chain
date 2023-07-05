@@ -12,5 +12,6 @@ contract MarriageChainStorage {
         bool isMarried;
         address spouse;
         address jointAccount;
+        uint256 certificate;
     }
 }

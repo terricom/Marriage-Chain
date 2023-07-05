@@ -37,6 +37,9 @@ contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
             myStatus.jointAccount = address(account);
             spouseStatus.jointAccount = address(account);
 
+            myStatus.certificate = uint256(uint160(spouse));
+            spouseStatus.certificate = uint256(uint160(spouse));
+
             marriageStatus[spouse] = spouseStatus;
         }
         marriageStatus[msg.sender] = myStatus;
@@ -50,8 +53,9 @@ contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
         MarriageStatus memory myStatus = marriageStatus[msg.sender];
         require(myStatus.isMarried, "You are not married");
         JointAccount(payable(myStatus.jointAccount)).splitAccount();
-        marriageStatus[msg.sender] = MarriageStatus(false, address(0), address(0));
-        marriageStatus[myStatus.spouse] = MarriageStatus(false, address(0), address(0));
+        _burn(myStatus.certificate);
+        marriageStatus[msg.sender] = MarriageStatus(false, address(0), address(0), 0);
+        marriageStatus[myStatus.spouse] = MarriageStatus(false, address(0), address(0), 0);
         emit Divorce(msg.sender, myStatus.spouse, names[msg.sender], names[myStatus.spouse]);
     }
 

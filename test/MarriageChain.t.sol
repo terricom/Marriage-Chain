@@ -70,7 +70,7 @@ contract MarriageChainTest is Test {
         vm.startPrank(Mary, Mary);
         marriageChainProxy.register(George, 'Mary');
         marriageChainProxy.divorce();
-        (bool isMarried, ,) = marriageChainProxy.marriageStatus(Mary);
+        (bool isMarried, , ,) = marriageChainProxy.marriageStatus(Mary);
         assertEq(isMarried, false);
     }
 
@@ -80,7 +80,7 @@ contract MarriageChainTest is Test {
         vm.stopPrank();
         vm.startPrank(Mary, Mary);
         marriageChainProxy.register(George, 'Mary');
-        (, ,address account) = marriageChainProxy.marriageStatus(Mary);
+        (, ,address account,) = marriageChainProxy.marriageStatus(Mary);
         (bool transfer, ) = account.call { value: 10 ether }("");
         assertEq(transfer, true);
         assertEq(account.balance, 10 ether);
@@ -88,5 +88,24 @@ contract MarriageChainTest is Test {
         marriageChainProxy.divorce();
         uint256 balanceAfter = Mary.balance;
         assertEq(balanceAfter - balanceBefore, 5 ether);
+    }
+
+    function testGetMarriedAgain() public {
+        vm.startPrank(George, George);
+        marriageChainProxy.register(Mary, 'George');
+        vm.stopPrank();
+        vm.startPrank(Mary, Mary);
+        marriageChainProxy.register(George, 'Mary');
+        (bool married, , ,) = marriageChainProxy.marriageStatus(Mary);
+        assertEq(married, true);
+        marriageChainProxy.divorce();
+        vm.stopPrank();
+        vm.startPrank(George, George);
+        marriageChainProxy.register(Mary, 'George');
+        vm.stopPrank();
+        vm.startPrank(Mary, Mary);
+        marriageChainProxy.register(George, 'Mary');
+        (bool marriedAgain, , ,) = marriageChainProxy.marriageStatus(Mary);
+        assertEq(marriedAgain, true);
     }
 }
