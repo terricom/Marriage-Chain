@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import "../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
+
 contract JointAccount {
+
+    using ECDSA for bytes32;
+
     event ExecutionSuccess(bytes32 txHash);
     event ExecutionFailure(bytes32 txHash);
 
@@ -43,7 +48,8 @@ contract JointAccount {
     ) public payable virtual returns (bool success) {
         bytes32 txHash = encodeTransactionData(to, value, data, nonce, block.chainid);
         nonce++;
-        checkSignatures(txHash, signatures);
+        bool valid = checkSignatures(txHash, signatures);
+        require(valid);
         (success, ) = to.call{ value: value }(data);
         require(success , 'Transaction failed :"( ');
         if (success) emit ExecutionSuccess(txHash);
@@ -53,7 +59,7 @@ contract JointAccount {
     function checkSignatures(
         bytes32 dataHash,
         bytes memory signatures
-    ) public view {
+    ) public view returns (bool valid) {
         uint256 _threshold = threshold;
         require(_threshold > 0, "This account has not been initialized.");
 
@@ -68,10 +74,13 @@ contract JointAccount {
         for (i = 0; i < _threshold; i++) {
             (v, r, s) = signatureSplit(signatures, i);
             // check signature is valid
-            currentOwner = ecrecover(keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", dataHash)), v, r, s);
-            require(currentOwner > lastOwner && isOwner[currentOwner], "Signatures are identical or not from owners.");
+            bytes memory signature = abi.encodePacked(r, s, v);
+            currentOwner = dataHash.toEthSignedMessageHash().recover(signature);
+            require(isOwner[currentOwner], "Signature is not from owners.");
+            require(currentOwner > lastOwner, "Signatures are identical.");
             lastOwner = currentOwner;
         }
+        return true;
     }
     
     function signatureSplit(bytes memory signatures, uint256 pos)
