@@ -88,7 +88,7 @@ contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
             '<text x="60" y="250">',
             names[spouse],
             '</text>',
-            '<text x="20" y="280" style="font-size:14px;">',
+            '<text x="20" y="280" style="font-size:14px;">0x',
             addressToString(spouse),
             '</text>'
             )
@@ -99,7 +99,7 @@ contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
         return string(abi.encodePacked(
             unicode'<text x="20" y="330" style="font-size:30px;">💰</text>',
             '<text x="60" y="330">Joint account</text>',
-            '<text x="20" y="360" style="font-size:14px;">',
+            '<text x="20" y="360" style="font-size:14px;">0x',
             addressToString(account),
             '</text>'
             )
@@ -126,7 +126,7 @@ contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
                         '<text x="60" y="170">',
                         names[spouse1],
                         '</text>',
-                        '<text x="20" y="200" style="font-size:14px;">',
+                        '<text x="20" y="200" style="font-size:14px;">0x',
                         addressToString(spouse1),
                         '</text>',
                         spouseInfo(spouse2),
