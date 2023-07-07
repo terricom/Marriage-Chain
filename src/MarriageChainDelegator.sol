@@ -3,6 +3,10 @@ pragma solidity ^0.8.13;
 
 import "./MarriageChainStorage.sol";
 
+/**
+ * @title Marriage Chain Delegator - A proxy contract for marriage chain
+ * @author Terri Yang - @terricom
+ */
 contract MarriageChainDelegator is MarriageChainStorage {
 
   constructor(address _implementation){

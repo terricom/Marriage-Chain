@@ -7,6 +7,10 @@ import "../lib/openzeppelin-contracts/contracts/utils/Base64.sol";
 import "./JointAccount.sol";
 import "./MarriageChainStorage.sol";
 
+/**
+ * @title Marriage Chain Delegate - A logic contract for marriage chain
+ * @author Terri Yang - @terricom
+ */
 contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
 
     event NewCouple(address spouse1, address spouse2, string name1, string name2);

@@ -3,6 +3,10 @@ pragma solidity ^0.8.13;
 
 import "../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
 
+/**
+ * @title Joint Account - A multi-sig contract requires two signatures before transaction
+ * @author Terri Yang - @terricom
+ */
 contract JointAccount {
 
     using ECDSA for bytes32;

@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+/**
+ * @title Marriage Chain Storage - A contract stores marriage chain related data
+ * @author Terri Yang - @terricom
+ */
 contract MarriageChainStorage {
 
     address public implementation;
