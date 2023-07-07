@@ -1,67 +1,63 @@
 # Marriage-Chain
-Get married on blockchain is so easy!
-Provide stand-alone marriage services from witness, certificate, joint account and also divorce.
 
 ## Description
+Get married on blockchain is so easy!!!
+Provide stand-alone marriage related services from register, get marriage certificate, mantain joint account, and also divorce incase needed.
+- register
+- marriage certificate NFT
+- create joint account
+- divorce
 
-### Witness contract
-Provide a brief overview of the project, including its purpose, goals, and any relevant background information.
-
-- methods
-    - register(address with, string name) payable
-    - getMarried(address who) return bool
-    - getFiance(address who) return address
-    - getSpouse(address who) returns address
-    - divorce() payable
-- process of getting married
-    - user1 register
-    - user2 register
-    - contract check both register
-    - new MarriageCertificate NFT
-    - new JointAccount
-- process of getting divorced
-    - user1 divorce
-    - user2 divorce
-    - burn marriage certificate NFT
-    - split joint account
-
-### Marriage certificate NFT
-
-- Content
-    - names
-    - addresses
-    - blocktime
-
-### Joint account (MultiSig wallet)
-
-- methods
-    - withdraw
-    - split
-
-- Reference
-    - https://zhuanlan.zhihu.com/p/47474274?utm_id=0
-    - https://etherscan.io/tx/0xc206bb9f30050a2abb95f7e65c6381a9202f5776f0ec633913af1fc0bd0829fe
-    - https://etherscan.io/tx/0xe57243c88fb10b9ff9eeab7e51a197830092975339c07c7bcaf685d501c57237
-    - https://medium.com/coinmonks/get-married-on-the-blockchain-25091f12399b
+<img decoding="async" src="https://github.com/terricom/Marriage-Chain/assets/50873556/9fea7694-5668-4aa3-a723-e1c1af2ab3a9" width="50%">
 
 ## Framework
+### Marriage Chain contract
+This contract is for couples to `rigister`, and there will be `Marriage Certificate NFT` after registration completed.
 
-Describe different components or modules in your project and their responsibilities respectively. This section should highlights the key functionalities or features that each component contributes to the overall project.
-Illustrate the overall workflow or process involved in the project.
-[Nice to have] You can use flowcharts or diagrams to visualize the sequence of steps or interactions between components.
+### Joint Account contract
+This contract is `multi-sig wallet` for couples to mantain joint account, every transaction requires 2 signatures.
+
+- register flow
+![register](https://github.com/terricom/Marriage-Chain/assets/50873556/c8f6e767-5840-4a9c-a230-7e6487f9ec3d)
+
+- divorce flow
+![divorce](https://github.com/terricom/Marriage-Chain/assets/50873556/2ba35a6c-f6e9-45ef-ad3c-7bdf3a924ac5)
 
 ## Development
-
-Include step-by-step instructions on how to set up and run the project.
-.env.example
-command example
-If this project includes BE or FE, provide instructions for those as well.
+Clone this repository, install foundry dependencies, and build the source code:
+```bash
+git clone git@github.com:terricom/Marriage-Chain.git
+cd ~/Marriage-Chain
+forge install
+forge build
+forge test
+```
 
 ## Testing
+### MarriageChain.t.sol
+Test MarriageChain for register and divorce flow.
+- testBigamyRevert()
+- testDivorceResetStatus()
+- testDivorceSplitAccount()
+- testEmitNewCoupleEvent()
+- testGetMarriedAgain()
+- testRequiredMarriedBeforeDivorce()
+- testUpdateName() 
 
-Explain how to run the tests.
-[Nice to have] 80% or more coverage.
+### JointAccount.t.sol
+Test JointAccount for execute transaction and split account.
+- testExecuteTransactionFailureForDuplicateSignature()
+- testExecuteTransactionFailureForWrongSignature()
+- testExecuteTransactionSuccess()
+- testOwnerCorrectness()
+- testSplitAccount()
 
 ## Usage
-
-Explain how to use the project and provide examples or code snippets to demonstrate its usage.
+Try marriage contract in https://sepolia.etherscan.io/address/0x25e4243a75ec46bb0122c208e653973d91fd7d8f#writeProxyContract
+- connect to web3: Connect to available wallet
+- select `Write as Proxy` tab
+- `register` input spouse address and name
+- wait for yout spouse to `register` your address
+- check the minted certificate NFT in https://testnets.opensea.io/collection/unidentified-contract-41918
+- execute transaction requires 2 signatures
+- `divorce` with spouse and get half of joint account
