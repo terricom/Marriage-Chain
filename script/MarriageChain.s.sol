@@ -12,5 +12,6 @@ contract MarriageChainScript is Script {
         vm.startBroadcast(deployerPrivateKey);
         MarriageChainDelegate marriageChain = new MarriageChainDelegate();
         MarriageChainDelegator marriageChainDelegator = new MarriageChainDelegator(address(marriageChain));
+        MarriageChainDelegate marriageChainProxy = MarriageChainDelegate(address(marriageChainDelegator));
     }
 }
