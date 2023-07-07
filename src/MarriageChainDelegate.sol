@@ -12,7 +12,7 @@ contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
     event NewCouple(address spouse1, address spouse2, string name1, string name2);
     event Divorce(address spouse1, address spouse2, string name1, string name2);
 
-    constructor() ERC721("Marriage Certificate", "MC") {}
+    constructor() ERC721("Marriage Chain Certificate", "MCC") {}
 
     modifier checkSpouse(address spouse) {
         require(spouse != msg.sender, "You can't get married with yourself");
@@ -37,14 +37,14 @@ contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
             myStatus.jointAccount = address(account);
             spouseStatus.jointAccount = address(account);
 
-            myStatus.certificate = uint256(uint160(spouse));
-            spouseStatus.certificate = uint256(uint160(spouse));
+            myStatus.certificate = uint256(uint160(address(account)));
+            spouseStatus.certificate = uint256(uint160(address(account)));
 
             marriageStatus[spouse] = spouseStatus;
         }
         marriageStatus[msg.sender] = myStatus;
         if (registerSuccess) {
-            mintCertificate(spouse);
+            mintCertificate(myStatus.jointAccount);
             emit NewCouple(msg.sender, spouse, name, names[spouse]);
         }
     }
@@ -70,8 +70,8 @@ contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
         marriageStatus[msg.sender] = myStatus;
     }
 
-    function mintCertificate(address spouse) internal {
-        _mint(spouse, uint256(uint160(spouse)));
+    function mintCertificate(address account) internal {
+        _mint(account, uint256(uint160(account)));
     }
 
      function tokenURI(uint256 id) public view override returns (string memory) {
@@ -103,8 +103,9 @@ contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
     }
 
     function _buildTokenURI(uint256 id) internal view returns (string memory) {
-        MarriageStatus memory status = marriageStatus[address(uint160(id))];
-        address spouse = status.spouse;
+        JointAccount account = JointAccount(payable(address(uint160(id))));
+        address spouse1 = account.couples(0);
+        address spouse2 = account.couples(1);
 
         bytes memory image = abi.encodePacked(
             "data:image/svg+xml;base64,",
@@ -119,13 +120,13 @@ contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
                         '<text class="h1" x="95" y="120" >Marriage</text>',
                         unicode'<text x="20" y="170" style="font-size:30px;">💍</text>',
                         '<text x="60" y="170">',
-                        names[address(uint160(id))],
+                        names[spouse1],
                         '</text>',
                         '<text x="20" y="200" style="font-size:14px;">',
-                        addressToString(address(uint160(id))),
+                        addressToString(spouse1),
                         '</text>',
-                        spouseInfo(spouse),
-                        accountInfo(status.jointAccount),
+                        spouseInfo(spouse2),
+                        accountInfo(address(account)),
                         "</svg>"
                     )
                 )
@@ -141,13 +142,13 @@ contract MarriageChainDelegate is MarriageChainStorage, ERC721 {
                                 '{"name":"Certificate of Marriage", "image":"',
                                 image,
                                 unicode'", "description": "This NFT marks the certificate of marrage for ',
-                                names[address(uint160(id))],
+                                names[spouse1],
                                 '(',
-                                addressToString(address(uint160(id))),
+                                addressToString(spouse1),
                                 ') & ',
-                                names[spouse],
+                                names[spouse2],
                                 '(',
-                                addressToString(spouse),
+                                addressToString(spouse2),
                                 ')"}'
                             )
                         )
